@@ -12,18 +12,24 @@ import kotlinx.android.synthetic.main.fragment_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.provider.Settings.Secure
 import android.util.Log
-import com.example.qurbatask.network.entities.AuthRequest
-import com.example.qurbatask.network.entities.Payload
+import com.example.qurbatask.main.JWT.GetJwtEvent
+import com.example.qurbatask.network.genericEntities.ApiRequest
+import com.example.qurbatask.network.request.JWTRequest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 
-class MainFragment : BaseFragment<MainEvent, MainState>(R.layout.fragment_main) {
+@UseExperimental(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
+@FlowPreview
+class MainFragment : BaseFragment<GetJwtEvent, MainState>(R.layout.fragment_main) {
     override val viewModel: MainViewModel by viewModel()
 
     override fun renderState(state: MainState) {
         if (state.isLoading) progressBar.visibility = View.VISIBLE else progressBar.visibility =
             GONE
 
-        tv_test.text=state.message
+        tv_test.text = state.message
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,8 +39,12 @@ class MainFragment : BaseFragment<MainEvent, MainState>(R.layout.fragment_main) 
                 requireActivity().contentResolver,
                 Secure.ANDROID_ID
             )
-            Log.d("xxx",android_id)
-            sendEvent { MainEvent.Started(AuthRequest(payload = Payload(deviceId =  android_id))) }
+            Log.d("xxx", android_id)
+            sendEvent { GetJwtEvent.Started(
+                ApiRequest(
+                    JWTRequest(deviceId = android_id)
+                )
+            ) }
         } else {
             requestPermissions(
                 arrayOf(Manifest.permission.READ_PHONE_STATE),
@@ -63,8 +73,12 @@ class MainFragment : BaseFragment<MainEvent, MainState>(R.layout.fragment_main) 
                         requireActivity().contentResolver,
                         Secure.ANDROID_ID
                     )
-                    Log.d("xxx",android_id)
-                    sendEvent { MainEvent.Started(AuthRequest(payload = Payload(deviceId =  android_id))) }
+                    Log.d("xxx", android_id)
+                    sendEvent { GetJwtEvent.Started(
+                        ApiRequest(
+                            JWTRequest(android_id)
+                        )
+                    ) }
                 }
                 return
             }

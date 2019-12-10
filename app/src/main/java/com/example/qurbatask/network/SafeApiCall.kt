@@ -1,11 +1,13 @@
-package com.example.qurbatask.network
+package com.example.qurbatask
 
 import android.annotation.SuppressLint
-
+import com.example.qurbatask.network.genericEntities.ApiResponse
+import com.example.qurbatask.network.Failure
 import timber.log.Timber
 import java.io.IOException
 import com.squareup.moshi.JsonDataException
 import retrofit2.HttpException
+import com.example.qurbatask.network.Result
 
 @SuppressLint("TimberArgCount")
 suspend fun <T> safeApiCall(
@@ -13,8 +15,8 @@ suspend fun <T> safeApiCall(
 ): Result<T> {
     return try {
         val result = call()
-        if (result.Success == true) {
-            val data = result.Data
+        if (result.type == "SUCCESS") {
+            val data = result.payload
             return if (data != null) {
                 Result.Success(data)
             } else {
@@ -22,7 +24,7 @@ suspend fun <T> safeApiCall(
             }
         }
         Timber.i("Error", "safe call api try error")
-        return Result.Error(Failure.ServerError(result.ArabicMessage ?: "ServerError"))
+        return Result.Error(Failure.ServerError("ServerError"))
     } catch (e: Exception) {
         e.printStackTrace()
         when (e) {
