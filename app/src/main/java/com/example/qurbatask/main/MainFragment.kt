@@ -12,7 +12,11 @@ import kotlinx.android.synthetic.main.fragment_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.provider.Settings.Secure
 import android.util.Log
+import androidx.navigation.fragment.findNavController
 import com.example.qurbatask.main.JWT.GetJwtEvent
+import com.example.qurbatask.main.JWT.MainState
+import com.example.qurbatask.placesList.LoadPlaces.LoadPlacesEvent
+import com.example.qurbatask.mviBase.MviEvent
 import com.example.qurbatask.network.genericEntities.ApiRequest
 import com.example.qurbatask.network.request.JWTRequest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,14 +26,20 @@ import kotlinx.coroutines.FlowPreview
 @UseExperimental(ExperimentalCoroutinesApi::class)
 @ExperimentalCoroutinesApi
 @FlowPreview
-class MainFragment : BaseFragment<GetJwtEvent, MainState>(R.layout.fragment_main) {
+class MainFragment : BaseFragment<MviEvent, MainState>(R.layout.fragment_main) {
     override val viewModel: MainViewModel by viewModel()
 
     override fun renderState(state: MainState) {
         if (state.isLoading) progressBar.visibility = View.VISIBLE else progressBar.visibility =
             GONE
-
-        tv_test.text = state.message
+        if (state.jwt.isNotEmpty()) {
+            Log.d("xxxx",state.jwt)
+            findNavController().navigate(
+                MainFragmentDirections.actionMainFragmentToPlacesListFragment(
+                    state.jwt
+                )
+            )
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,11 +50,13 @@ class MainFragment : BaseFragment<GetJwtEvent, MainState>(R.layout.fragment_main
                 Secure.ANDROID_ID
             )
             Log.d("xxx", android_id)
-            sendEvent { GetJwtEvent.Started(
-                ApiRequest(
-                    JWTRequest(deviceId = android_id)
+            sendEvent {
+                GetJwtEvent.Started(
+                    ApiRequest(
+                        JWTRequest(deviceId = android_id)
+                    )
                 )
-            ) }
+            }
         } else {
             requestPermissions(
                 arrayOf(Manifest.permission.READ_PHONE_STATE),
@@ -74,11 +86,13 @@ class MainFragment : BaseFragment<GetJwtEvent, MainState>(R.layout.fragment_main
                         Secure.ANDROID_ID
                     )
                     Log.d("xxx", android_id)
-                    sendEvent { GetJwtEvent.Started(
-                        ApiRequest(
-                            JWTRequest(android_id)
+                    sendEvent {
+                        GetJwtEvent.Started(
+                            ApiRequest(
+                                JWTRequest(android_id)
+                            )
                         )
-                    ) }
+                    }
                 }
                 return
             }

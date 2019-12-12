@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 const val REQUIRE_AUTHENTICATION_HEADER = "Require-Authentication"
 const val BASE_URL = "https://backend-user-alb.qurba-dev.com/"
 const val AUTH_END_POINT = "auth/login-guest"
-const val GET_NEARBY_PLACES ="places/places/nearby"
+const val GET_NEARBY_PLACES = "places/places/nearby?page=1"
 
 object NetworkConfig {
     private fun loggingInterceptor(): HttpLoggingInterceptor {
@@ -47,7 +47,7 @@ object NetworkConfig {
                 var request: Request = chain.request()
                 request = request.newBuilder().addHeader("Content-Type", "application/json")
                     .addHeader("version", "3.0")
-                    .addHeader("language","en")
+                    .addHeader("language", "en")
                     .build()
                 return chain.proceed(request)
             }

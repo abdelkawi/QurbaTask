@@ -1,7 +1,8 @@
-package com.example.qurbatask.main
+package com.example.qurbatask.main.JWT
 
 import com.example.qurbatask.mviBase.MviState
 
 data class MainState(
     val isLoading: Boolean = true,
-    val message: String? = null) : MviState()
+    val jwt: String = ""
+) : MviState()
